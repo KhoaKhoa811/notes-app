@@ -7,6 +7,7 @@ import com.example.notes_app.service.NoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +21,8 @@ public class NoteServiceImpl implements NoteService {
         NoteEntity noteEntity = NoteEntity.builder()
                 .title(noteDto.getTitle())
                 .content(noteDto.getContent())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
         return mapToDto(noteRepository.save(noteEntity));
     }
@@ -45,6 +48,7 @@ public class NoteServiceImpl implements NoteService {
                 .orElseThrow(() -> new RuntimeException("Note not found with id " + id));
         noteEntity.setTitle(noteDto.getTitle());
         noteEntity.setContent(noteDto.getContent());
+        noteEntity.setUpdatedAt(LocalDateTime.now());
         return mapToDto(noteRepository.save(noteEntity));
     }
 
