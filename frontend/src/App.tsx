@@ -1,35 +1,54 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import { getNotes, createNote, deleteNote } from "./api/notesApi";
+import type { Note } from "./types/note";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [newNote, setNewNote] = useState("");
+
+  useEffect(() => {
+    fetchNotes();
+  }, []);
+
+  const fetchNotes = async () => {
+    const res = await getNotes();
+    setNotes(res.data);
+  };
+
+  const handleAddNote = async () => {
+    if (!newNote.trim()) return;
+    await createNote({ title: newNote, content: "" });
+    setNewNote("");
+    fetchNotes();
+  };
+
+  const handleDelete = async (id: number) => {
+    await deleteNote(id);
+    fetchNotes();
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div style={{ padding: "20px" }}>
+      <h1>Notes App (TS + React)</h1>
+
+      <input
+        type="text"
+        placeholder="Enter a note title..."
+        value={newNote}
+        onChange={(e) => setNewNote(e.target.value)}
+      />
+      <button onClick={handleAddNote}>Add</button>
+
+      <ul>
+        {notes.map((note) => (
+          <li key={note.id}>
+            {note.title}{" "}
+            <button onClick={() => handleDelete(note.id)}>❌</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
-export default App
+export default App;
