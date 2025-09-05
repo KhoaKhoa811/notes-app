@@ -1,40 +1,41 @@
 services:
   db:
-    image: mysql:8.0
+    image: mysql:5.7
     container_name: notes-mysql
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: notesdb
       MYSQL_USER: notesuser
       MYSQL_PASSWORD: notespass
-    ports:
-      - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
+    networks:
+      - notes-net
+    restart: always
 
   backend:
     build: ./backend
     container_name: notes-backend
+    image: khoakhoa2004/notes-backend:latest
     depends_on:
       - db
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/notesdb
-      SPRING_DATASOURCE_USERNAME: notesuser
-      SPRING_DATASOURCE_PASSWORD: notespass
-    ports:
-      - "8080:8080"
+    networks:
+      - notes-net
     restart: always
 
   frontend:
     build: ./frontend
     container_name: notes-frontend
+    image: khoakhoa2004/notes-frontend:latest
     depends_on:
       - backend
-    environment:
-    - VITE_API_URL=http://backend:8080/api
-    ports:
-      - "5173:80"
+    networks:
+      - notes-net
+    restart: always
+
+networks:
+  notes-net:
+    driver: bridge
 
 volumes:
   db_data:
