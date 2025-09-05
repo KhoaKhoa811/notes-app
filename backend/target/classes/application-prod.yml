@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:mysql://db:3306/notesdb
+    username: notes_user
+    password: notes_pass
+
+  jpa:
+    show-sql: false

@@ -1,0 +1,8 @@
+/home/khoa/Workspace/notes-app/backend/src/main/java/com/example/notes_app/NotesAppApplication.java
+/home/khoa/Workspace/notes-app/backend/src/main/java/com/example/notes_app/config/WebConfig.java
+/home/khoa/Workspace/notes-app/backend/src/main/java/com/example/notes_app/controller/NoteController.java
+/home/khoa/Workspace/notes-app/backend/src/main/java/com/example/notes_app/dto/NoteDto.java
+/home/khoa/Workspace/notes-app/backend/src/main/java/com/example/notes_app/entity/NoteEntity.java
+/home/khoa/Workspace/notes-app/backend/src/main/java/com/example/notes_app/repository/NoteRepository.java
+/home/khoa/Workspace/notes-app/backend/src/main/java/com/example/notes_app/service/NoteService.java
+/home/khoa/Workspace/notes-app/backend/src/main/java/com/example/notes_app/service/impl/NoteServiceImpl.java
