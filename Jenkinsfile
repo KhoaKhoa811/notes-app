@@ -2,35 +2,17 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB = 'khoakhoa2004'
+        DOCKER_HUB = 'khoakhoa2004'                // DockerHub username
         IMAGE_BACKEND = 'notes-backend'
         IMAGE_FRONTEND = 'notes-frontend'
-        VERSION_TAG = "build-${env.BUILD_NUMBER}"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', 
+                git branch: 'main',
                     url: 'https://github.com/KhoaKhoa811/notes-app.git',
                     credentialsId: 'notes_app_git'
-            }
-        }
-
-        stage('Build Backend') {
-            steps {
-                dir('backend') {
-                    sh 'mvn clean package -DskipTests'
-                }
-            }
-        }
-
-        stage('Build Frontend') {
-            steps {
-                dir('frontend') {
-                    sh 'npm install'
-                    sh 'npm run build'
-                }
             }
         }
 
@@ -44,8 +26,8 @@ pipeline {
         stage('Push Docker Images') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'notes_app_dockerhub', 
-                    usernameVariable: 'USER', 
+                    credentialsId: 'notes_app_dockerhub',
+                    usernameVariable: 'USER',
                     passwordVariable: 'PASS'
                 )]) {
                     sh "echo $PASS | docker login -u $USER --password-stdin"
@@ -59,6 +41,7 @@ pipeline {
 
         stage('Deploy') {
             steps {
+                sh 'docker compose -f docker-compose.prod.yml pull'
                 sh 'docker compose -f docker-compose.prod.yml up -d --build'
             }
         }
