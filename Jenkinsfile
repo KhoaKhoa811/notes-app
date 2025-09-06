@@ -5,6 +5,7 @@ pipeline {
         DOCKER_HUB = 'khoakhoa2004'                // DockerHub username
         IMAGE_BACKEND = 'notes-backend'
         IMAGE_FRONTEND = 'notes-frontend'
+        VERSION_TAG = "build-${BUILD_NUMBER}"
     }
 
     stages {
