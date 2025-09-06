@@ -6,6 +6,7 @@ pipeline {
         IMAGE_BACKEND = 'notes-backend'
         IMAGE_FRONTEND = 'notes-frontend'
         VERSION_TAG = "build-${BUILD_NUMBER}"
+        DEPLOY_DIR = '~/notes-app'
     }
 
     stages {
@@ -42,8 +43,15 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh 'docker compose -f docker-compose.prod.yml pull'
-                sh 'docker compose -f docker-compose.prod.yml up -d --build'
+                sh """
+                    ssh -o StrictHostKeyChecking=no deploy@localhost '
+                        cd $DEPLOY_DIR &&
+                        docker-compose -f docker-compose.yml -f docker-compose.prod.yml down &&
+                        git pull origin main &&
+                        docker compose -f docker-compose.yml -f docker-compose.prod.yml pull &&
+                        docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+                    '
+                """
             }
         }
     }
