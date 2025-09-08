@@ -49,8 +49,8 @@ pipeline {
                             cd $DEPLOY_DIR &&
                             docker-compose -f docker-compose.yml -f docker-compose.prod.yml down &&
                             git pull origin main &&
-                            docker compose -f docker-compose.yml -f docker-compose.prod.yml pull &&
-                            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+                            docker-compose -f docker-compose.yml -f docker-compose.prod.yml pull &&
+                            docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
                         '
                     """
                 }
