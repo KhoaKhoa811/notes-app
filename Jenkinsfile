@@ -7,6 +7,7 @@ pipeline {
         IMAGE_FRONTEND = 'notes-frontend'
         VERSION_TAG = "build-${BUILD_NUMBER}"
         DEPLOY_DIR = '~/notes-app'
+        PREV_VERSION = "build-${BUILD_NUMBER.toInteger() - 1}"  // rollback tag
     }
 
     triggers {
@@ -14,7 +15,6 @@ pipeline {
     }
 
     stages {
-        
         stage('Checkout') {
             steps {
                 git branch: 'main',
@@ -59,6 +59,25 @@ pipeline {
                         '
                     """
                 }
+            }
+        }
+    }
+
+    post {
+        failure {
+            echo "Deploy failed. Rolling back to previous version: ${PREV_VERSION}"
+            sshagent(['notes_app_ssh']) {
+                sh """
+                    ssh -o StrictHostKeyChecking=no deploy@103.15.223.60 '
+                        cd $DEPLOY_DIR &&
+                        docker-compose -f docker-compose.yml -f docker-compose.prod.yml down &&
+                        docker pull $DOCKER_HUB/$IMAGE_BACKEND:${PREV_VERSION} &&
+                        docker pull $DOCKER_HUB/$IMAGE_FRONTEND:${PREV_VERSION} &&
+                        docker tag $DOCKER_HUB/$IMAGE_BACKEND:${PREV_VERSION} $DOCKER_HUB/$IMAGE_BACKEND:latest &&
+                        docker tag $DOCKER_HUB/$IMAGE_FRONTEND:${PREV_VERSION} $DOCKER_HUB/$IMAGE_FRONTEND:latest &&
+                        docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+                    '
+                """
             }
         }
     }
