@@ -43,15 +43,17 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh """
-                    ssh -o StrictHostKeyChecking=no deploy@localhost '
-                        cd $DEPLOY_DIR &&
-                        docker-compose -f docker-compose.yml -f docker-compose.prod.yml down &&
-                        git pull origin main &&
-                        docker compose -f docker-compose.yml -f docker-compose.prod.yml pull &&
-                        docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-                    '
-                """
+                sshagent(['notes_app_ssh']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no deploy@103.15.223.60 '
+                            cd $DEPLOY_DIR &&
+                            docker-compose -f docker-compose.yml -f docker-compose.prod.yml down &&
+                            git pull origin main &&
+                            docker compose -f docker-compose.yml -f docker-compose.prod.yml pull &&
+                            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+                        '
+                    """
+                }
             }
         }
     }
