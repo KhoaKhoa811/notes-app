@@ -9,7 +9,12 @@ pipeline {
         DEPLOY_DIR = '~/notes-app'
     }
 
+    triggers {
+        githubPush()
+    }
+
     stages {
+        
         stage('Checkout') {
             steps {
                 git branch: 'main',
