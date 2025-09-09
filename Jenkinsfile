@@ -23,17 +23,17 @@ pipeline {
             }
         }
 
-        stage('Build & SonarQube') {
+        stage('Build & SonarQube Analysis') {
             agent {
                 docker {
-                    image 'maven:3.9.6-eclipse-temurin-17'
+                    image 'maven:3.9.6-eclipse-temurin-21'
                     args '-v /root/.m2:/root/.m2'
                 }
             }
             steps {
                 dir('backend') {
                     withSonarQubeEnv('SonarQube-Server') {
-                        sh 'mvn clean verify sonar:sonar'
+                        sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=notes-app-backend'
                     }
                 }
             }
@@ -46,6 +46,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('Build Docker Images') {
             steps {
