@@ -40,7 +40,7 @@ pipeline {
             steps {
                 dir('backend') {
                     withSonarQubeEnv('SonarQube-Server') {
-                        sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=notes-app-backend'
+                        sh 'mvn clean verify sonar:sonar -Dspring.profiles.active=dev'
                     }
                 }
             }
