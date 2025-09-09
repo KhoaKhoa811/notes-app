@@ -23,6 +23,13 @@ pipeline {
             }
         }
 
+        stage('Build Docker Images') {
+            steps {
+                sh "docker build -t $DOCKER_HUB/$IMAGE_BACKEND:$VERSION_TAG -t $DOCKER_HUB/$IMAGE_BACKEND:latest ./backend"
+                sh "docker build -t $DOCKER_HUB/$IMAGE_FRONTEND:$VERSION_TAG -t $DOCKER_HUB/$IMAGE_FRONTEND:latest ./frontend"
+            }
+        }
+
         stage('Build & SonarQube Analysis') {
             agent {
                 docker {
@@ -44,14 +51,6 @@ pipeline {
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
-            }
-        }
-
-
-        stage('Build Docker Images') {
-            steps {
-                sh "docker build -t $DOCKER_HUB/$IMAGE_BACKEND:$VERSION_TAG -t $DOCKER_HUB/$IMAGE_BACKEND:latest ./backend"
-                sh "docker build -t $DOCKER_HUB/$IMAGE_FRONTEND:$VERSION_TAG -t $DOCKER_HUB/$IMAGE_FRONTEND:latest ./frontend"
             }
         }
 
