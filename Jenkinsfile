@@ -32,7 +32,7 @@ pipeline {
             }
             steps {
                 dir('backend') {
-                    withSonarQubeEnv('SonarQube') {
+                    withSonarQubeEnv('SonarQube-Server') {
                         sh 'mvn clean verify sonar:sonar'
                     }
                 }
