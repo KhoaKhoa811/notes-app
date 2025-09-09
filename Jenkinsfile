@@ -28,16 +28,12 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build & SonarQube Analysis') {
             steps {
-                sh 'mvn clean verify sonar:sonar'
-            }
-        }
-
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube-Server') {
-                    sh './gradlew sonarqube'
+                dir('backend') {
+                    withSonarQubeEnv('SonarQube-Server') {
+                        sh 'mvn clean verify sonar:sonar'
+                    }
                 }
             }
         }
