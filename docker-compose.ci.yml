@@ -8,7 +8,7 @@ services:
     ports:
       - "3306:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -24,10 +24,7 @@ services:
       mysql-ci:
         condition: service_healthy
     command: >
-      bash -c "mvn clean verify sonar:sonar
-        -Dspring.profiles.active=ci
-        -Dsonar.host.url=http://sonarqube:9000"
-
-networks:
-  default:
-    name: my_ci_network
+      bash -c "mvn verify
+        -DskipUnitTests
+        -Dspring.profiles.active=it"
+    # chú ý: profile `it` → dùng MySQL
