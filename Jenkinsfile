@@ -50,8 +50,10 @@ pipeline {
                 }
             }
             steps {
-                sh 'docker-compose -f docker-compose.ci.yml up --abort-on-container-exit --exit-code-from backend-test'
-                sh 'docker-compose -f docker-compose.ci.yml down'
+                dir("${WORKSPACE}") {
+                    sh 'docker-compose -f docker-compose.ci.yml up --abort-on-container-exit --exit-code-from backend-test'
+                    sh 'docker-compose -f docker-compose.ci.yml down'
+                }
             }
         }
 
