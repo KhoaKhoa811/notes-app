@@ -33,20 +33,20 @@ pipeline {
             steps {
                 dir('backend') {
                     withSonarQubeEnv('SonarQube-Server') {
-                        sh 'mvn clean verify -DskipITs sonar:sonar -Dspring.profiles.active=ci'
+                        sh '''
+                            mvn clean install -DskipITs -Dspring.profiles.active=ci
+                            mvn sonar:sonar -Dspring.profiles.active=ci
+                        '''
                     }
                 }
             }
         }
 
+
         stage('Integration Test (MySQL)') {
             steps {
                 script {
-                    sh 'docker-compose -f docker-compose.ci.yml up -d mysql-ci'
-                    sh 'sleep 20' // chờ MySQL ready
-                    dir('backend') {
-                        sh 'mvn verify -DskipUnitTests -Dspring.profiles.active=ci'
-                    }
+                    sh 'docker-compose -f docker-compose.ci.yml up --abort-on-container-exit --exit-code-from backend-test'
                     sh 'docker-compose -f docker-compose.ci.yml down'
                 }
             }
