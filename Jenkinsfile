@@ -23,13 +23,6 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images') {
-            steps {
-                sh "docker build -t $DOCKER_HUB/$IMAGE_BACKEND:$VERSION_TAG -t $DOCKER_HUB/$IMAGE_BACKEND:latest ./backend"
-                sh "docker build -t $DOCKER_HUB/$IMAGE_FRONTEND:$VERSION_TAG -t $DOCKER_HUB/$IMAGE_FRONTEND:latest ./frontend"
-            }
-        }
-
         stage('Build & SonarQube Analysis') {
             agent {
                 docker {
@@ -40,7 +33,7 @@ pipeline {
             steps {
                 dir('backend') {
                     withSonarQubeEnv('SonarQube-Server') {
-                        sh 'mvn clean verify sonar:sonar -Dspring.profiles.active=dev'
+                        sh 'mvn clean verify sonar:sonar -Dspring.profiles.active=ci'
                     }
                 }
             }
@@ -51,6 +44,48 @@ pipeline {
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
+            }
+        }
+
+        stage('Integration Test (MySQL)') {
+            when {
+                branch 'main'
+            }
+            agent {
+                docker {
+                    image 'maven:3.9.6-eclipse-temurin-21'
+                    args '-v /root/.m2:/root/.m2 --network=host'
+                }
+            }
+            steps {
+                script {
+                    // Start MySQL container cho CI
+                    sh '''
+                    docker run -d --name mysql-ci \
+                      -e MYSQL_ROOT_PASSWORD=root \
+                      -e MYSQL_DATABASE=notes_ci \
+                      -p 3306:3306 \
+                      mysql:8.0
+                    '''
+
+                    // Chờ MySQL khởi động
+                    sleep 20
+
+                    // Chạy test với profile ci
+                    dir('backend') {
+                        sh 'mvn test -Dspring.profiles.active=ci'
+                    }
+
+                    // Cleanup MySQL container
+                    sh 'docker rm -f mysql-ci'
+                }
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                sh "docker build -t $DOCKER_HUB/$IMAGE_BACKEND:$VERSION_TAG -t $DOCKER_HUB/$IMAGE_BACKEND:latest ./backend"
+                sh "docker build -t $DOCKER_HUB/$IMAGE_FRONTEND:$VERSION_TAG -t $DOCKER_HUB/$IMAGE_FRONTEND:latest ./frontend"
             }
         }
 
@@ -72,37 +107,39 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sshagent(['notes_app_ssh']) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no deploy@103.15.223.60 '
-                            cd $DEPLOY_DIR &&
-                            docker-compose -f docker-compose.yml -f docker-compose.prod.yml down &&
-                            git pull origin main &&
-                            docker-compose -f docker-compose.yml -f docker-compose.prod.yml pull &&
-                            docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-                        '
-                    """
+                script {
+                    try {
+                        sshagent(['notes_app_ssh']) {
+                            sh """
+                                ssh -o StrictHostKeyChecking=no deploy@103.15.223.60 '
+                                    cd $DEPLOY_DIR &&
+                                    docker-compose -f docker-compose.yml -f docker-compose.prod.yml down &&
+                                    git pull origin main &&
+                                    docker-compose -f docker-compose.yml -f docker-compose.prod.yml pull &&
+                                    docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+                                '
+                            """
+                        }
+                    } catch (err) {
+                        echo "Deploy failed. Rolling back to previous version: ${PREV_VERSION}"
+                        sshagent(['notes_app_ssh']) {
+                            sh """
+                                ssh -o StrictHostKeyChecking=no deploy@103.15.223.60 '
+                                    cd $DEPLOY_DIR &&
+                                    docker-compose -f docker-compose.yml -f docker-compose.prod.yml down &&
+                                    docker pull $DOCKER_HUB/$IMAGE_BACKEND:${PREV_VERSION} &&
+                                    docker pull $DOCKER_HUB/$IMAGE_FRONTEND:${PREV_VERSION} &&
+                                    docker tag $DOCKER_HUB/$IMAGE_BACKEND:${PREV_VERSION} $DOCKER_HUB/$IMAGE_BACKEND:latest &&
+                                    docker tag $DOCKER_HUB/$IMAGE_FRONTEND:${PREV_VERSION} $DOCKER_HUB/$IMAGE_FRONTEND:latest &&
+                                    docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+                                '
+                            """
+                        }
+                        error("Rollback executed because Deploy failed.")
+                    }
                 }
             }
         }
-    }
 
-    post {
-        failure {
-            echo "Deploy failed. Rolling back to previous version: ${PREV_VERSION}"
-            sshagent(['notes_app_ssh']) {
-                sh """
-                    ssh -o StrictHostKeyChecking=no deploy@103.15.223.60 '
-                        cd $DEPLOY_DIR &&
-                        docker-compose -f docker-compose.yml -f docker-compose.prod.yml down &&
-                        docker pull $DOCKER_HUB/$IMAGE_BACKEND:${PREV_VERSION} &&
-                        docker pull $DOCKER_HUB/$IMAGE_FRONTEND:${PREV_VERSION} &&
-                        docker tag $DOCKER_HUB/$IMAGE_BACKEND:${PREV_VERSION} $DOCKER_HUB/$IMAGE_BACKEND:latest &&
-                        docker tag $DOCKER_HUB/$IMAGE_FRONTEND:${PREV_VERSION} $DOCKER_HUB/$IMAGE_FRONTEND:latest &&
-                        docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-                    '
-                """
-            }
-        }
     }
 }
