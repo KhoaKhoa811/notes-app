@@ -42,16 +42,19 @@ pipeline {
             }
         }
 
-
-
         stage('Integration Test (MySQL)') {
-            steps {
-                script {
-                    sh 'docker-compose -f docker-compose.ci.yml up --abort-on-container-exit --exit-code-from backend-test'
-                    sh 'docker-compose -f docker-compose.ci.yml down'
+            agent {
+                docker {
+                    image 'docker/compose:1.29.2'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock -v $WORKSPACE:$WORKSPACE'
                 }
             }
+            steps {
+                sh 'docker-compose -f docker-compose.ci.yml up --abort-on-container-exit --exit-code-from backend-test'
+                sh 'docker-compose -f docker-compose.ci.yml down'
+            }
         }
+
 
         stage("Quality Gate") {
             steps {
