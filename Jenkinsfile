@@ -51,36 +51,30 @@ pipeline {
             when {
                 branch 'main'
             }
-            agent {
-                docker {
-                    image 'maven:3.9.6-eclipse-temurin-21'
-                    args '-v /root/.m2:/root/.m2 --network=host'
-                }
-            }
             steps {
                 script {
-                    // Start MySQL container cho CI
+                    // Start MySQL container qua docker-compose
+                    sh 'docker-compose -f docker-compose.ci.yml up -d'
+
+                    // Wait until MySQL is healthy
                     sh '''
-                    docker run -d --name mysql-ci \
-                      -e MYSQL_ROOT_PASSWORD=root \
-                      -e MYSQL_DATABASE=notes_ci \
-                      -p 3306:3306 \
-                      mysql:8.0
+                    until [ "`docker inspect -f {{.State.Health.Status}} mysql-ci`" == "healthy" ]; do
+                    echo "Waiting for MySQL to be healthy..."
+                    sleep 5
+                    done
                     '''
 
-                    // Chờ MySQL khởi động
-                    sleep 20
-
-                    // Chạy test với profile ci
+                    // Run backend tests với profile ci
                     dir('backend') {
                         sh 'mvn test -Dspring.profiles.active=ci'
                     }
 
-                    // Cleanup MySQL container
-                    sh 'docker rm -f mysql-ci'
+                    // Cleanup
+                    sh 'docker-compose -f docker-compose.ci.yml down -v'
                 }
             }
         }
+
 
         stage('Build Docker Images') {
             steps {

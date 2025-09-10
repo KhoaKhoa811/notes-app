@@ -1,0 +1,22 @@
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    user: root
+    privileged: true
+    ports:
+      - "8081:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock   # 🔑 mount socket để Jenkins có quyền Docker
+      - /usr/bin/docker:/usr/bin/docker             # mount binary docker từ VPS
+      - /usr/lib/jvm/java-21-openjdk:/usr/lib/jvm/java-21-openjdk:ro # nếu bạn muốn dùng JDK host
+
+networks:
+  jenkins-net:
+    driver: bridge
+
+volumes:
+  jenkins-data:
+  jenkins-docker-certs:
