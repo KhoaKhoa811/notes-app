@@ -33,8 +33,21 @@ pipeline {
             steps {
                 dir('backend') {
                     withSonarQubeEnv('SonarQube-Server') {
-                        sh 'mvn clean verify sonar:sonar -Dspring.profiles.active=ci'
+                        sh 'mvn clean verify -DskipITs sonar:sonar -Dspring.profiles.active=ci'
                     }
+                }
+            }
+        }
+
+        stage('Integration Test (MySQL)') {
+            steps {
+                script {
+                    sh 'docker-compose -f docker-compose.ci.yml up -d mysql-ci'
+                    sh 'sleep 20' // chờ MySQL ready
+                    dir('backend') {
+                        sh 'mvn verify -DskipUnitTests -Dspring.profiles.active=ci'
+                    }
+                    sh 'docker-compose -f docker-compose.ci.yml down'
                 }
             }
         }
@@ -46,35 +59,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Integration Test (MySQL)') {
-            when {
-                branch 'main'
-            }
-            steps {
-                script {
-                    // Start MySQL container qua docker-compose
-                    sh 'docker-compose -f docker-compose.ci.yml up -d'
-
-                    // Wait until MySQL is healthy
-                    sh '''
-                    until [ "`docker inspect -f {{.State.Health.Status}} mysql-ci`" == "healthy" ]; do
-                    echo "Waiting for MySQL to be healthy..."
-                    sleep 5
-                    done
-                    '''
-
-                    // Run backend tests với profile ci
-                    dir('backend') {
-                        sh 'mvn test -Dspring.profiles.active=ci'
-                    }
-
-                    // Cleanup
-                    sh 'docker-compose -f docker-compose.ci.yml down -v'
-                }
-            }
-        }
-
 
         stage('Build Docker Images') {
             steps {
