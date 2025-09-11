@@ -35,7 +35,12 @@ pipeline {
                     withSonarQubeEnv('SonarQube-Server') {
                         sh '''
                             mvn clean install -DskipITs -Dspring.profiles.active=ci
-                            mvn sonar:sonar -Dspring.profiles.active=ci
+                            mvn sonar:sonar \
+                                -Dsonar.projectKey=notes_app \
+                                -Dsonar.projectName=notes_app \
+                                -Dsonar.host.url=$SONAR_HOST_URL \
+                                -Dsonar.login=$SONAR_AUTH_TOKEN \
+                                -Dspring.profiles.active=ci
                         '''
                     }
                 }
@@ -44,11 +49,17 @@ pipeline {
 
         stage("Quality Gate") {
             steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                script {
+                    timeout(time: 5, unit: 'MINUTES') {
+                        def qg = waitForQualityGate()
+                        if (qg.status != 'OK') {
+                            error "Pipeline failed due to Quality Gate: ${qg.status}"
+                        }
+                    }
                 }
             }
         }
+
 
         stage('Build Docker Images') {
             steps {
