@@ -23,7 +23,7 @@ pipeline {
             }
         }
 
-        stage('Integration Test (H2)') {
+        stage('Build & SonarQube Analysis') {
             agent {
                 docker {
                     image 'maven:3.9.6-eclipse-temurin-21'
@@ -32,12 +32,15 @@ pipeline {
             }
             steps {
                 dir('backend') {
-                    sh 'mvn verify -Dspring.profiles.active=ci'
+                    withSonarQubeEnv('SonarQube-Server') {
+                        sh '''
+                            mvn clean install -DskipITs -Dspring.profiles.active=ci
+                            mvn sonar:sonar -Dspring.profiles.active=ci
+                        '''
+                    }
                 }
             }
         }
-
-
 
         stage("Quality Gate") {
             steps {
