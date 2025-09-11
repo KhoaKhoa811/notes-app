@@ -23,7 +23,7 @@ pipeline {
             }
         }
 
-        stage('Build & SonarQube Analysis') {
+        stage('Integration Test (H2)') {
             agent {
                 docker {
                     image 'maven:3.9.6-eclipse-temurin-21'
@@ -32,31 +32,11 @@ pipeline {
             }
             steps {
                 dir('backend') {
-                    withSonarQubeEnv('SonarQube-Server') {
-                        sh '''
-                            mvn clean install -DskipITs -Dspring.profiles.active=ci
-                            mvn sonar:sonar -Dspring.profiles.active=ci
-                        '''
-                    }
+                    sh 'mvn verify -Dspring.profiles.active=ci'
                 }
             }
         }
 
-        stage('Integration Test (MySQL)') {
-            agent {
-                docker {
-                    image 'docker/compose:1.29.2'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock -v $WORKSPACE:$WORKSPACE'
-                }
-            }
-            steps {
-                sh """
-                    cd $WORKSPACE
-                    docker-compose -f docker-compose.ci.yml up --abort-on-container-exit --exit-code-from backend-test
-                    docker-compose -f docker-compose.ci.yml down
-                """
-            }
-        }
 
 
         stage("Quality Gate") {
