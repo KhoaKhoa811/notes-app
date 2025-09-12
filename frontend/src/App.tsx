@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getNotes, createNote, deleteNote } from "./api/notesApi";
+import { getNotes, createNote, deleteNote } from "./api/NotesApi";
 import type { Note } from "./types/note";
 
 function App() {
