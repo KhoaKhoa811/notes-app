@@ -9,3 +9,12 @@ spring:
 
 server:
   port: ${SERVER_PORT:8080}
+
+jwt:
+  signed-key: fe41dfbe8a8d73b316608e0d960e6b8856e0a083d2ce728d14ec0d587876ea61
+
+pagination:
+  default-page: 0
+  default-size: 10
+  default-sort-by: id
+  default-sort-dir: asc
