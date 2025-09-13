@@ -1,1 +1,3 @@
 /home/khoa/Workspace/notes-app/backend/src/test/java/com/example/notes_app/NotesAppApplicationTests.java
+/home/khoa/Workspace/notes-app/backend/src/test/java/com/example/notes_app/controller/auth/AuthControllerIntegrationTest.java
+/home/khoa/Workspace/notes-app/backend/src/test/java/com/example/notes_app/controller/auth/AuthControllerTest.java

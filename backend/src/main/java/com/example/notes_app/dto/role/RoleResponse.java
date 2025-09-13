@@ -1,10 +1,8 @@
 package com.example.notes_app.dto.role;
 
 import com.example.notes_app.dto.permission.PermissionResponse;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jdk.jshell.Snippet;
+import lombok.*;
 
 import java.util.List;
 
@@ -12,8 +10,10 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class RoleResponse {
     private Integer id;
     private String name;
     private List<PermissionResponse> permissions;
+
 }
