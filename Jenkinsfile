@@ -51,6 +51,10 @@ pipeline {
             }
         }
 
+        withSonarQubeEnv('SonarQube-Server') { // tên server đã khai báo trong Jenkins -> Configure System
+            sh 'mvn clean verify sonar:sonar'
+        }
+
 
         stage("Quality Gate") {
             steps {
