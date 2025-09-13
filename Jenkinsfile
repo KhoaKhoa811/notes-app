@@ -23,7 +23,7 @@ pipeline {
             }
         }
 
-        stage('Build & SonarQube Analysis') {
+        stage('Build & Test & SonarQube') {
             agent {
                 docker {
                     image 'maven:3.9.6-eclipse-temurin-21'
@@ -32,20 +32,23 @@ pipeline {
             }
             steps {
                 dir('backend') {
-                    withSonarQubeEnv('SonarQube-Server') {
-                        sh '''
-                            mvn clean install -DskipITs -Dspring.profiles.active=ci
-                            mvn sonar:sonar \
-                                -Dsonar.projectKey=notes_app \
-                                -Dsonar.projectName=notes_app \
-                                -Dsonar.host.url=$SONAR_HOST_URL \
-                                -Dsonar.login=$SONAR_AUTH_TOKEN \
-                                -Dspring.profiles.active=ci
-                        '''
-                    }
+                    sh '''
+                        # Build + run test + coverage
+                        mvn clean test jacoco:report -Dspring.profiles.active=ci
+
+                        # SonarQube analysis
+                        mvn sonar:sonar \
+                            -Dsonar.projectKey=notes_app \
+                            -Dsonar.projectName=notes_app \
+                            -Dsonar.host.url=$SONAR_HOST_URL \
+                            -Dsonar.login=$SONAR_AUTH_TOKEN \
+                            -Dsonar.junit.reportPaths=target/surefire-reports \
+                            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                    '''
                 }
             }
         }
+
 
         stage("Quality Gate") {
             steps {

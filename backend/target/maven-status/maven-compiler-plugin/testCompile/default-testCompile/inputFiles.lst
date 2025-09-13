@@ -1,3 +1,11 @@
 /home/khoa/Workspace/notes-app/backend/src/test/java/com/example/notes_app/NotesAppApplicationTests.java
+/home/khoa/Workspace/notes-app/backend/src/test/java/com/example/notes_app/controller/AccountControllerTest.java
+/home/khoa/Workspace/notes-app/backend/src/test/java/com/example/notes_app/controller/NoteControllerTest.java
+/home/khoa/Workspace/notes-app/backend/src/test/java/com/example/notes_app/controller/PermissionControllerTest.java
+/home/khoa/Workspace/notes-app/backend/src/test/java/com/example/notes_app/controller/RoleControllerTest.java
 /home/khoa/Workspace/notes-app/backend/src/test/java/com/example/notes_app/controller/auth/AuthControllerIntegrationTest.java
 /home/khoa/Workspace/notes-app/backend/src/test/java/com/example/notes_app/controller/auth/AuthControllerTest.java
+/home/khoa/Workspace/notes-app/backend/src/test/java/com/example/notes_app/service/AccountServiceTest.java
+/home/khoa/Workspace/notes-app/backend/src/test/java/com/example/notes_app/service/PermissionServiceTest.java
+/home/khoa/Workspace/notes-app/backend/src/test/java/com/example/notes_app/service/RoleServiceTest.java
+/home/khoa/Workspace/notes-app/backend/src/test/java/com/example/notes_app/service/auth/AuthServiceTest.java
