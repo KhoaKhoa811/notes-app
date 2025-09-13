@@ -8,6 +8,8 @@ pipeline {
         VERSION_TAG = "build-${BUILD_NUMBER}"
         DEPLOY_DIR = '~/notes-app'
         PREV_VERSION = "build-${BUILD_NUMBER.toInteger() - 1}"  // rollback tag
+        SONAR_HOST_URL = 'http://103.15.223.60:9000'
+        SONAR_AUTH_TOKEN = credentials('sonarqube-token')
     }
 
     triggers {
