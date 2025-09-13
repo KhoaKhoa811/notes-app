@@ -33,26 +33,24 @@ pipeline {
                 }
             }
             steps {
-                dir('backend') {
-                    sh '''
-                        # Build + run test + coverage
-                        mvn clean test jacoco:report -Dspring.profiles.active=ci
+                withSonarQubeEnv('SonarQube-Server') { 
+                    dir('backend') {
+                        sh '''
+                            # Build + run test + coverage
+                            mvn clean test jacoco:report -Dspring.profiles.active=ci
 
-                        # SonarQube analysis
-                        mvn sonar:sonar \
-                            -Dsonar.projectKey=notes_app \
-                            -Dsonar.projectName=notes_app \
-                            -Dsonar.host.url=$SONAR_HOST_URL \
-                            -Dsonar.login=$SONAR_AUTH_TOKEN \
-                            -Dsonar.junit.reportPaths=target/surefire-reports \
-                            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-                    '''
+                            # SonarQube analysis
+                            mvn sonar:sonar \
+                                -Dsonar.projectKey=notes_app \
+                                -Dsonar.projectName=notes_app \
+                                -Dsonar.host.url=$SONAR_HOST_URL \
+                                -Dsonar.login=$SONAR_AUTH_TOKEN \
+                                -Dsonar.junit.reportPaths=target/surefire-reports \
+                                -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                        '''
+                    }
                 }
             }
-        }
-
-        withSonarQubeEnv('SonarQube-Server') { // tên server đã khai báo trong Jenkins -> Configure System
-            sh 'mvn clean verify sonar:sonar'
         }
 
 
