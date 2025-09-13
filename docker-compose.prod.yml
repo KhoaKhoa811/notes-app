@@ -15,16 +15,15 @@ services:
     expose:
       - "8080"
 
+  # Tạm thời dùng container frontend để extract dist ra volume
   frontend:
     image: khoakhoa2004/notes-frontend:latest
-    container_name: notes-frontend
-    depends_on:
-      - backend
+    container_name: notes-frontend-extract
+    command: ["sh", "-c", "cp -r /app/dist/* /usr/share/nginx/html/"]
+    volumes:
+      - frontend_dist:/usr/share/nginx/html
     networks:
       - notes-net
-    command: ["true"]  # không chạy, chỉ để pull image
-    volumes:
-      - frontend_dist:/usr/share/nginx/html:ro
     restart: "no"
 
   nginx:
