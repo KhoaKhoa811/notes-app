@@ -1,9 +1,5 @@
-// src/api/AuthApi.ts
-import axios from "axios";
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "/api",
-});
+import api from "./api";
+import { setTokens, clearTokens } from "./TokenService";
 
 export type RegisterRequest = {
   email: string;
@@ -11,33 +7,28 @@ export type RegisterRequest = {
   roleIds?: number[];
 };
 
+// Register
 export const registerUser = (data: RegisterRequest) =>
   api.post("/v1/auth/register", {
     ...data,
-    roleIds: data.roleIds || [1], // mặc định roleIds = [1]
+    roleIds: data.roleIds || [1], // mặc định role = [1]
   });
 
 // Login
 export const loginUser = async (data: { email: string; password: string }) => {
   const response = await api.post("/v1/auth/login", data);
 
-    // Lấy token đúng chỗ
-    const { accessToken, refreshToken } = response.data.data;
-    console.log(accessToken)
+  const { accessToken, refreshToken } = response.data.data;
 
-  // Nếu login thành công -> lưu token
   if (accessToken) {
-    localStorage.setItem("accessToken", accessToken);
-    if (refreshToken) {
-      localStorage.setItem("refreshToken", refreshToken);
-    }
+    setTokens(accessToken, refreshToken);
   }
 
   return response;
 };
 
-// Logout (xóa token khỏi localStorage)
+// Logout
 export const logoutUser = () => {
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("refreshToken");
+  clearTokens();
+  window.location.href = "/login";
 };
