@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-09-13T10:49:13+0700",
+    date = "2025-09-14T17:18:01+0700",
     comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.8 (Oracle Corporation)"
 )
 @Component
@@ -39,13 +39,13 @@ public class RoleMapperImpl implements RoleMapper {
             return null;
         }
 
-        RoleResponse roleResponse = new RoleResponse();
+        RoleResponse.RoleResponseBuilder roleResponse = RoleResponse.builder();
 
-        roleResponse.setId( roleEntity.getId() );
-        roleResponse.setName( roleEntity.getName() );
-        roleResponse.setPermissions( permissionMapper.toResponseList( roleEntity.getPermissions() ) );
+        roleResponse.id( roleEntity.getId() );
+        roleResponse.name( roleEntity.getName() );
+        roleResponse.permissions( permissionMapper.toResponseList( roleEntity.getPermissions() ) );
 
-        return roleResponse;
+        return roleResponse.build();
     }
 
     @Override

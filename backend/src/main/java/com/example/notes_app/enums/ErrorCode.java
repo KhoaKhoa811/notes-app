@@ -34,6 +34,14 @@ public enum ErrorCode {
     //login
     LOGIN_SUCCESS(501, "login success"),
     REFRESH_TOKEN(502, "refresh token success"),
+    // note
+    NOTE_CREATED(503, "note created"),
+    NOTE_DELETED(504, "note deleted"),
+    NOTE_UPDATED(505, "note updated"),
+    NOTE_GET_BY_ID(510, "note get by id"),
+    NOTE_GET_ALL(511, "note get all"),
+    NOTE_GET_BY_ACCOUNT(512,  "note get by account"),
+
     ;
 
     private final int code;

@@ -54,13 +54,14 @@ class NoteControllerTest {
 
         Mockito.when(noteService.createNote(any(NoteDto.class))).thenReturn(response);
 
-        mockMvc.perform(post("/api/notes")
+        mockMvc.perform(post("/api/v1/notes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.title").value("Test Note"))
-                .andExpect(jsonPath("$.content").value("This is a test note."));
+                .andExpect(jsonPath("$.code").isNotEmpty())
+                .andExpect(jsonPath("$.data.id").value(1))
+                .andExpect(jsonPath("$.data.title").value("Test Note"))
+                .andExpect(jsonPath("$.data.content").value("This is a test note."));
     }
 
     @Test
@@ -73,11 +74,12 @@ class NoteControllerTest {
 
         Mockito.when(noteService.getNoteById(1L)).thenReturn(response);
 
-        mockMvc.perform(get("/api/notes/1"))
+        mockMvc.perform(get("/api/v1/notes/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.title").value("Test Note"))
-                .andExpect(jsonPath("$.content").value("This is a test note."));
+                .andExpect(jsonPath("$.code").isNotEmpty())
+                .andExpect(jsonPath("$.data.id").value(1))
+                .andExpect(jsonPath("$.data.title").value("Test Note"))
+                .andExpect(jsonPath("$.data.content").value("This is a test note."));
     }
 
     @Test
@@ -90,11 +92,12 @@ class NoteControllerTest {
 
         Mockito.when(noteService.getAllNotes()).thenReturn(List.of(note));
 
-        mockMvc.perform(get("/api/notes"))
+        mockMvc.perform(get("/api/v1/notes"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].title").value("Test Note"))
-                .andExpect(jsonPath("$[0].content").value("This is a test note."));
+                .andExpect(jsonPath("$.code").isNotEmpty())
+                .andExpect(jsonPath("$.data[0].id").value(1))
+                .andExpect(jsonPath("$.data[0].title").value("Test Note"))
+                .andExpect(jsonPath("$.data[0].content").value("This is a test note."));
     }
 
     @Test
@@ -111,20 +114,22 @@ class NoteControllerTest {
 
         Mockito.when(noteService.updateNote(any(Long.class), any(NoteDto.class))).thenReturn(response);
 
-        mockMvc.perform(put("/api/notes/1")
+        mockMvc.perform(put("/api/v1/notes/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.title").value("Updated Note"))
-                .andExpect(jsonPath("$.content").value("Updated content."));
+                .andExpect(jsonPath("$.code").isNotEmpty())
+                .andExpect(jsonPath("$.data.id").value(1))
+                .andExpect(jsonPath("$.data.title").value("Updated Note"))
+                .andExpect(jsonPath("$.data.content").value("Updated content."));
     }
 
     @Test
     @WithMockUser
     void testDeleteNote() throws Exception {
-        mockMvc.perform(delete("/api/notes/1"))
+        mockMvc.perform(delete("/api/v1/notes/1"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Note deleted successfully"));
+                .andExpect(jsonPath("$.code").isNotEmpty())
+                .andExpect(jsonPath("$.message").isNotEmpty());
     }
 }
