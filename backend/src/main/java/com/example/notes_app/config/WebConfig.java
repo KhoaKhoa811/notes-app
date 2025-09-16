@@ -16,7 +16,7 @@ public class WebConfig {
                 registry.addMapping("/**") // Cho phép tất cả API
                         .allowedOrigins("http://localhost:5173", "http://103.15.223.60") // Cho phép React gọi
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
+                        .allowedHeaders("Content-Type", "Authorization")
                         .allowCredentials(true);
             }
         };
