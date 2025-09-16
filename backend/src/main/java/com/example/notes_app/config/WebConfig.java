@@ -14,7 +14,7 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // Cho phép tất cả API
-                        .allowedOrigins("http://localhost:5173") // Cho phép React gọi
+                        .allowedOrigins("http://localhost:5173", "http://103.15.223.60") // Cho phép React gọi
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
