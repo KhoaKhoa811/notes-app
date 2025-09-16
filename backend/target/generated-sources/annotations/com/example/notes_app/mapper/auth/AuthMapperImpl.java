@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-09-14T17:18:01+0700",
+    date = "2025-09-16T21:29:54+0700",
     comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.8 (Oracle Corporation)"
 )
 @Component
@@ -19,11 +19,11 @@ public class AuthMapperImpl implements AuthMapper {
             return null;
         }
 
-        AccountEntity accountEntity = new AccountEntity();
+        AccountEntity.AccountEntityBuilder accountEntity = AccountEntity.builder();
 
-        accountEntity.setEmail( registerRequest.getEmail() );
-        accountEntity.setPassword( registerRequest.getPassword() );
+        accountEntity.email( registerRequest.getEmail() );
+        accountEntity.password( registerRequest.getPassword() );
 
-        return accountEntity;
+        return accountEntity.build();
     }
 }

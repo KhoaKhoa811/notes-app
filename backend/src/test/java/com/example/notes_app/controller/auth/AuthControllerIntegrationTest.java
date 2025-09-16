@@ -90,7 +90,7 @@ class AuthControllerIntegrationTest {
         String token = responseJson.path("data").path("accessToken").asText();
 
         // 4. Gọi API cần xác thực
-        mockMvc.perform(get("/api/notes")
+        mockMvc.perform(get("/api/v1/notes")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk());
     }
