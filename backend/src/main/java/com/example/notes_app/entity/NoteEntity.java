@@ -2,7 +2,6 @@ package com.example.notes_app.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.web.ErrorResponse;
 
 import java.time.LocalDateTime;
 
@@ -25,4 +24,8 @@ public class NoteEntity {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinColumn(name = "account_id")
+    private AccountEntity account;
 }

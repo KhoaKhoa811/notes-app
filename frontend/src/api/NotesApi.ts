@@ -1,24 +1,18 @@
-import axios from "axios";
+import api from "./api";
 import type { Note } from "../types/note";
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "/api",
-});
+interface ApiResponse<T> {
+  code: number;
+  data: T;
+}
 
-// Interceptor: tự động gắn token nếu có
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("accessToken"); // lưu khi login thành công
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+export const getNotes = () => api.get<ApiResponse<Note[]>>("/v1/notes");
 
-export const getNotes = () => api.get<Note[]>("/notes");
-export const createNote = (note: Partial<Note>) => api.post<Note>("/notes", note);
-export const updateNote = (id: number, note: Partial<Note>) =>
-  api.put<Note>(`/notes/${id}`, note);
-export const deleteNote = (id: number) => api.delete(`/notes/${id}`);
+export const createNote = (note: Pick<Note, "title" | "content">) =>
+  api.post<ApiResponse<Note>>("/v1/notes", note);
+
+export const updateNote = (id: number, note: Pick<Note, "title" | "content">) =>
+  api.put<ApiResponse<Note>>(`/v1/notes/${id}`, note);
+
+export const deleteNote = (id: number) =>
+  api.delete<ApiResponse<null>>(`/v1/notes/${id}`);

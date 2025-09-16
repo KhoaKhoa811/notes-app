@@ -1,12 +1,8 @@
 package com.example.notes_app.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import javax.annotation.processing.Generated;
 import java.util.List;
 
 @Entity
@@ -15,6 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class AccountEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,4 +28,7 @@ public class AccountEntity {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private List<RoleEntity> roles;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+    private List<NoteEntity> notes;
 }

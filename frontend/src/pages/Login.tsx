@@ -16,8 +16,7 @@ const Login = () => {
         setEmail("");
         setPassword("");
 
-        // // Ví dụ: chuyển hướng sang trang dashboard
-        // window.location.href = "/";
+        window.location.href = "/";
       } else {
         toast.error("Đăng nhập thất bại!");
       }
